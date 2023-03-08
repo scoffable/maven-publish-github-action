@@ -46,12 +46,14 @@ runs:
         servers: ${{ inputs.mvn-servers }}
   
     - name: Maven package
+      shell: bash
       run: mvn package
       env:
         USERNAME: ${{ inputs.mvn-build-username }}
         PASSWORD: ${{ inputs.mvn-build-password }}
   
     - name: Maven publish
+      shell: bash
       run: mvn deploy -DskipTests
       env:
         USERNAME: ${{ inputs.mvn-deploy-username }}
