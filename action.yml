@@ -1,0 +1,58 @@
+name: 'Maven Publish'
+description: 'Publish jar using maven and deploy'
+author: 'Sandy Thomson'
+branding:
+  icon: 'package'
+  color: 'red'
+
+inputs:
+  java-version:
+    description: 'the java version to build (if not provied, it will use the ${ maven.compiler.target } properties'
+    required: false
+    default: '1.8'
+  mvn-build-username:
+    description: 'the maven username to use when building package'
+    required: true
+  mvn-build-password:
+    description: 'the maven password to use when building package'
+    required: true
+  mvn-deploy-username:
+    description: 'the maven username to use when deploying package'
+    required: true
+  mvn-deploy-password:
+    description: 'the maven password to use when deploying package'
+    required: true
+  mvn-repositories:
+    description: 'the maven repositories to use'
+    required: false
+    default: '[{ "id": "central", "url": "https://repo1.maven.org/maven2" }, { "id": "jcenter", "url": "https://jcenter.bintray.com" }, { "id": "github", "url": "https://maven.pkg.github.com/scoffable/*" }]'
+  mvn-servers:
+    description: 'the maven servers to use'
+    required: false
+    default: '[{ "id": "github", "username": "${env.USERNAME}", "password": "${env.PASSWORD}" }]'
+runs:
+  using: "composite"
+  steps:
+  
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ inputs.java-version }}
+  
+    - name: Configure Maven Settings	
+      uses: whelk-io/maven-settings-xml-action@v9	
+      with:	
+        repositories: ${{ inputs.mvn-repositories }}
+        servers: ${{ inputs.mvn-servers }}
+  
+    - name: Maven package
+      run: mvn package
+      env:
+        USERNAME: ${{ inputs.mvn-build-username }}
+        PASSWORD: ${{ inputs.mvn-build-password }}
+  
+    - name: Maven publish to GitHub Packages
+      run: mvn deploy -DskipTests
+      env:
+        USERNAME: ${{ inputs.mvn-deploy-username }}
+        PASSWORD: ${{ inputs.mvn-deploy-password }}
