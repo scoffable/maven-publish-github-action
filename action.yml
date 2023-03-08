@@ -52,9 +52,11 @@ runs:
         USERNAME: ${{ inputs.mvn-build-username }}
         PASSWORD: ${{ inputs.mvn-build-password }}
   
+  # -Dmaven.resolver.transport=wagon makes maven revert to pre 3.9.0 deploy behaviour, 
+  # and avoids the 4XX error from Github packages
     - name: Maven publish
       shell: bash
-      run: mvn deploy -DskipTests
+      run: mvn deploy -DskipTests -Dmaven.resolver.transport=wagon
       env:
         USERNAME: ${{ inputs.mvn-deploy-username }}
         PASSWORD: ${{ inputs.mvn-deploy-password }}
