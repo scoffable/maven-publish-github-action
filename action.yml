@@ -51,7 +51,7 @@ runs:
         USERNAME: ${{ inputs.mvn-build-username }}
         PASSWORD: ${{ inputs.mvn-build-password }}
   
-    - name: Maven publish to GitHub Packages
+    - name: Maven publish
       run: mvn deploy -DskipTests
       env:
         USERNAME: ${{ inputs.mvn-deploy-username }}
