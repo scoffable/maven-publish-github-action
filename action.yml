@@ -45,7 +45,7 @@ runs:
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        distribution: 'temurin'
+        distribution:  ${{ inputs.java-distribution }}
         java-version:  ${{ inputs.java-version }}
   
     - name: Configure Maven Settings	
