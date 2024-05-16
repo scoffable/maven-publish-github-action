@@ -59,7 +59,7 @@ runs:
       shell: bash
       run: |
         echo "I AM RUNNING!"
-      if: ${{ inputs.slack-webhook-url != '' && github.event.action != 'prerelease'  }}
+      if: ${{ inputs.slack-webhook-url != '' && github.event.action != 'prereleased'  }}
       
     # - name: Set up JDK
     #   uses: actions/setup-java@v3
