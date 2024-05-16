@@ -55,35 +55,41 @@ runs:
         echo "XXX"
         echo "$GITHUB_CONTEXT"
         
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: ${{ inputs.java-distribution }}
-        java-version: ${{ inputs.java-version }}
-
-    - name: Configure Maven Settings
-      uses: whelk-io/maven-settings-xml-action@v21
-      with:
-        repositories: ${{ inputs.mvn-repositories }}
-        servers: ${{ inputs.mvn-servers }}
-
-    - name: Maven package
+    - name: Only run for releases
       shell: bash
-      run: mvn package
-      env:
-        USERNAME: ${{ inputs.mvn-build-username }}
-        PASSWORD: ${{ inputs.mvn-build-password }}
-      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "I AM RUNNING!"
+      if: ${{ inputs.slack-webhook-url != '' && github.event.action != 'prerelease'  }}
+      
+    # - name: Set up JDK
+    #   uses: actions/setup-java@v3
+    #   with:
+    #     distribution: ${{ inputs.java-distribution }}
+    #     java-version: ${{ inputs.java-version }}
 
-    # -Dmaven.resolver.transport=wagon makes maven revert to pre 3.9.0 deploy behaviour,
-    # and avoids the 4XX error from Github packages
-    - name: Maven publish
-      shell: bash
-      run: mvn deploy -DskipTests -Dmaven.resolver.transport=wagon
-      env:
-        USERNAME: ${{ inputs.mvn-deploy-username }}
-        PASSWORD: ${{ inputs.mvn-deploy-password }}
-      working-directory: ${{ inputs.working-directory }}
+    # - name: Configure Maven Settings
+    #   uses: whelk-io/maven-settings-xml-action@v21
+    #   with:
+    #     repositories: ${{ inputs.mvn-repositories }}
+    #     servers: ${{ inputs.mvn-servers }}
+
+    # - name: Maven package
+    #   shell: bash
+    #   run: mvn package
+    #   env:
+    #     USERNAME: ${{ inputs.mvn-build-username }}
+    #     PASSWORD: ${{ inputs.mvn-build-password }}
+    #   working-directory: ${{ inputs.working-directory }}
+
+    # # -Dmaven.resolver.transport=wagon makes maven revert to pre 3.9.0 deploy behaviour,
+    # # and avoids the 4XX error from Github packages
+    # - name: Maven publish
+    #   shell: bash
+    #   run: mvn deploy -DskipTests -Dmaven.resolver.transport=wagon
+    #   env:
+    #     USERNAME: ${{ inputs.mvn-deploy-username }}
+    #     PASSWORD: ${{ inputs.mvn-deploy-password }}
+    #   working-directory: ${{ inputs.working-directory }}
 
     # - uses: 8398a7/action-slack@v3
     #   with:
