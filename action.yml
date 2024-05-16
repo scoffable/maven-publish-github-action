@@ -1,59 +1,64 @@
-name: 'Maven Publish'
-description: 'Publish jar using maven and deploy'
-author: 'Sandy Thomson'
+name: "Maven Publish"
+description: "Publish jar using maven and deploy"
+author: "Sandy Thomson"
 branding:
-  icon: 'package'
-  color: 'red'
+  icon: "package"
+  color: "red"
 
 inputs:
   java-version:
-    description: 'the java version to build (if not provied, it will use the ${ maven.compiler.target } properties'
+    description: "the java version to build (if not provied, it will use the ${ maven.compiler.target } properties"
     required: false
-    default: '8'
+    default: "8"
   java-distribution:
-    description: 'the java distribution to use'
+    description: "the java distribution to use"
     required: false
-    default: 'temurin'
+    default: "temurin"
   mvn-build-username:
-    description: 'the maven username to use when building package'
+    description: "the maven username to use when building package"
     required: true
   mvn-build-password:
-    description: 'the maven password to use when building package'
+    description: "the maven password to use when building package"
     required: true
   mvn-deploy-username:
-    description: 'the maven username to use when deploying package'
+    description: "the maven username to use when deploying package"
     required: true
   mvn-deploy-password:
-    description: 'the maven password to use when deploying package'
+    description: "the maven password to use when deploying package"
     required: true
   mvn-repositories:
-    description: 'the maven repositories to use'
+    description: "the maven repositories to use"
     required: false
     default: '[{ "id": "central", "url": "https://repo1.maven.org/maven2" }, { "id": "jcenter", "url": "https://jcenter.bintray.com" }, { "id": "github", "url": "https://maven.pkg.github.com/scoffable/*" }]'
   mvn-servers:
-    description: 'the maven servers to use'
+    description: "the maven servers to use"
     required: false
     default: '[{ "id": "github", "username": "${env.USERNAME}", "password": "${env.PASSWORD}" }]'
   working-directory:
-    description: 'the working directory to run in'
+    description: "the working directory to run in"
     required: false
     default: .
+  slack-github-token:
+    description: "the github token to use when calling the Slack notification action"
+    required: false
+  slack-webhook-url:
+    description: "the webhook URL to use when calling the Slack notification action"
+    required: false
 runs:
   using: "composite"
   steps:
-        
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        distribution:  ${{ inputs.java-distribution }}
-        java-version:  ${{ inputs.java-version }}
-  
-    - name: Configure Maven Settings	
+        distribution: ${{ inputs.java-distribution }}
+        java-version: ${{ inputs.java-version }}
+
+    - name: Configure Maven Settings
       uses: whelk-io/maven-settings-xml-action@v21
-      with:	
+      with:
         repositories: ${{ inputs.mvn-repositories }}
         servers: ${{ inputs.mvn-servers }}
-  
+
     - name: Maven package
       shell: bash
       run: mvn package
@@ -61,9 +66,9 @@ runs:
         USERNAME: ${{ inputs.mvn-build-username }}
         PASSWORD: ${{ inputs.mvn-build-password }}
       working-directory: ${{ inputs.working-directory }}
-  
-  # -Dmaven.resolver.transport=wagon makes maven revert to pre 3.9.0 deploy behaviour, 
-  # and avoids the 4XX error from Github packages
+
+    # -Dmaven.resolver.transport=wagon makes maven revert to pre 3.9.0 deploy behaviour,
+    # and avoids the 4XX error from Github packages
     - name: Maven publish
       shell: bash
       run: mvn deploy -DskipTests -Dmaven.resolver.transport=wagon
@@ -72,3 +77,11 @@ runs:
         PASSWORD: ${{ inputs.mvn-deploy-password }}
       working-directory: ${{ inputs.working-directory }}
 
+    - uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,author
+      env:
+        GITHUB_TOKEN: ${{ inputs.slack-github-token }}
+        SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
+      if: ${{ inputs.slack-webhook-url != '' && failure() && github.event.release.prerelease == false  }}
