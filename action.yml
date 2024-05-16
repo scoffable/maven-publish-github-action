@@ -78,6 +78,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
 
     - name: Dump GitHub context
+      shell: bash
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
