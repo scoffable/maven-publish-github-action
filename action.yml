@@ -77,17 +77,12 @@ runs:
         PASSWORD: ${{ inputs.mvn-deploy-password }}
       working-directory: ${{ inputs.working-directory }}
 
-    - name: Dump GitHub context
-      shell: bash
+    - name: Notify Slack (for releases only)
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,author
       env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: |
-        echo "$GITHUB_CONTEXT"
-    # - uses: 8398a7/action-slack@v3
-    #   with:
-    #     status: ${{ job.status }}
-    #     fields: repo,message,author
-    #   env:
-    #     GITHUB_TOKEN: ${{ inputs.slack-github-token }}
-    #     SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
-    #   if: ${{ inputs.slack-webhook-url != '' && failure() && github.event.release.prerelease == false  }}
+        GITHUB_TOKEN: ${{ inputs.slack-github-token }}
+        SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
+      if: ${{ failure() && inputs.slack-webhook-url != '' && github.event.action != 'prereleased'  }}
