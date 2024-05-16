@@ -47,6 +47,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Dump GitHub context
+      shell: bash
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "XXX"
+        echo "$GITHUB_CONTEXT"
+        
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
@@ -77,12 +85,6 @@ runs:
         PASSWORD: ${{ inputs.mvn-deploy-password }}
       working-directory: ${{ inputs.working-directory }}
 
-    - name: Dump GitHub context
-      shell: bash
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: |
-        echo "$GITHUB_CONTEXT"
     # - uses: 8398a7/action-slack@v3
     #   with:
     #     status: ${{ job.status }}
