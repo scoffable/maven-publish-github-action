@@ -77,11 +77,16 @@ runs:
         PASSWORD: ${{ inputs.mvn-deploy-password }}
       working-directory: ${{ inputs.working-directory }}
 
-    - uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        fields: repo,message,author
+    - name: Dump GitHub context
       env:
-        GITHUB_TOKEN: ${{ inputs.slack-github-token }}
-        SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
-      if: ${{ inputs.slack-webhook-url != '' && failure() && github.event.release.prerelease == false  }}
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
+    # - uses: 8398a7/action-slack@v3
+    #   with:
+    #     status: ${{ job.status }}
+    #     fields: repo,message,author
+    #   env:
+    #     GITHUB_TOKEN: ${{ inputs.slack-github-token }}
+    #     SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
+    #   if: ${{ inputs.slack-webhook-url != '' && failure() && github.event.release.prerelease == false  }}
