@@ -44,6 +44,10 @@ inputs:
   slack-webhook-url:
     description: "the webhook URL to use when calling the Slack notification action"
     required: false
+  skip-tests:
+    description: "Whether to skip the Java tests. Override this to blank to run the tests."
+    required: false
+    default: " -DskipTests "
 runs:
   using: "composite"
   steps:
@@ -61,7 +65,7 @@ runs:
 
     - name: Maven package
       shell: bash
-      run: mvn package
+      run: mvn package ${{ inputs.skip-tests }}
       env:
         USERNAME: ${{ inputs.mvn-build-username }}
         PASSWORD: ${{ inputs.mvn-build-password }}
