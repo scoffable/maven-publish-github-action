@@ -10,10 +10,6 @@ inputs:
     description: "the java version to build (if not provied, it will use the ${ maven.compiler.target } properties"
     required: false
     default: "8"
-  java-distribution:
-    description: "the java distribution to use"
-    required: false
-    default: "temurin"
   mvn-build-username:
     description: "the maven username to use when building package"
     required: true
