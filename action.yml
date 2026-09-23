@@ -95,4 +95,4 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.slack-github-token }}
         SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
-      if: ${{ failure() && inputs.slack-webhook-url != '' && github.event.action != 'prereleased'  }}
+      if: ${{ failure() && inputs.slack-webhook-url != '' && github.event.release.prerelease != true }}
