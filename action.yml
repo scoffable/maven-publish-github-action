@@ -51,11 +51,19 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set up JDK
-      uses: actions/setup-java@v3
+    # The JDK, plus ~/.m2/repository restored from the caches the repo saves on its default
+    # branch. A release-triggered run can read those, which is what makes this worth doing: both
+    # mvn runs below otherwise start from an empty repository every time. Read and never saved:
+    # a cache saved from a tag is scoped to that tag, so nothing could ever read it back.
+    # The settings step below then writes its own settings.xml over this action's, which is
+    # deliberate, because the repositories and the two credential pairs are inputs here.
+    - name: Set up JDK and restore the Maven caches
+      uses: scoffable/scoffable-github-workflows/maven@master
       with:
-        distribution: ${{ inputs.java-distribution }}
+        github-username: ${{ inputs.mvn-build-username }}
+        github-token: ${{ inputs.mvn-build-password }}
         java-version: ${{ inputs.java-version }}
+        save: "false"
 
     - name: Configure Maven Settings
       uses: whelk-io/maven-settings-xml-action@v21
