@@ -51,14 +51,16 @@ runs:
     # branch. A release-triggered run can read those, which is what makes this worth doing: both
     # mvn runs below otherwise start from an empty repository every time. Read and never saved:
     # a cache saved from a tag is scoped to that tag, so nothing could ever read it back.
-    # The settings step below then writes its own settings.xml over this action's, which is
-    # deliberate, because the repositories and the two credential pairs are inputs here.
+    # settings: false, because the step below writes its own settings.xml: the repositories and
+    # the two credential pairs are inputs here, and the package and publish steps rely on that
+    # file naming ${env.USERNAME} and ${env.PASSWORD} so each can supply its own.
     - name: Set up JDK and restore the Maven caches
       uses: scoffable/scoffable-github-workflows/maven@master
       with:
         github-username: ${{ inputs.mvn-build-username }}
         github-token: ${{ inputs.mvn-build-password }}
         java-version: ${{ inputs.java-version }}
+        settings: "false"
         save: "false"
 
     - name: Configure Maven Settings
