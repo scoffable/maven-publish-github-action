@@ -55,7 +55,7 @@ runs:
     # the two credential pairs are inputs here, and the package and publish steps rely on that
     # file naming ${env.USERNAME} and ${env.PASSWORD} so each can supply its own.
     - name: Set up JDK and restore the Maven caches
-      uses: scoffable/scoffable-github-workflows/maven@claude/maven-settings-input
+      uses: scoffable/scoffable-github-workflows/maven@master
       with:
         github-username: ${{ inputs.mvn-build-username }}
         github-token: ${{ inputs.mvn-build-password }}
