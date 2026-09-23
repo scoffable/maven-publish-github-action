@@ -10,10 +10,6 @@ inputs:
     description: "the java version to build (if not provied, it will use the ${ maven.compiler.target } properties"
     required: false
     default: "8"
-  java-distribution:
-    description: "the java distribution to use"
-    required: false
-    default: "temurin"
   mvn-build-username:
     description: "the maven username to use when building package"
     required: true
@@ -51,11 +47,21 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set up JDK
-      uses: actions/setup-java@v3
+    # The JDK, plus ~/.m2/repository restored from the caches the repo saves on its default
+    # branch. A release-triggered run can read those, which is what makes this worth doing: both
+    # mvn runs below otherwise start from an empty repository every time. Read and never saved:
+    # a cache saved from a tag is scoped to that tag, so nothing could ever read it back.
+    # settings: false, because the step below writes its own settings.xml: the repositories and
+    # the two credential pairs are inputs here, and the package and publish steps rely on that
+    # file naming ${env.USERNAME} and ${env.PASSWORD} so each can supply its own.
+    - name: Set up JDK and restore the Maven caches
+      uses: scoffable/scoffable-github-workflows/maven@master
       with:
-        distribution: ${{ inputs.java-distribution }}
+        github-username: ${{ inputs.mvn-build-username }}
+        github-token: ${{ inputs.mvn-build-password }}
         java-version: ${{ inputs.java-version }}
+        settings: "false"
+        save: "false"
 
     - name: Configure Maven Settings
       uses: whelk-io/maven-settings-xml-action@v21
